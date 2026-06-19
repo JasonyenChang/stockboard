@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   createChart,
   ColorType,
@@ -8,6 +8,15 @@ import {
   type UTCTimestamp,
 } from "lightweight-charts";
 import type { Candle } from "@/lib/types";
+import { fmtNum } from "@/lib/format";
+
+interface Legend {
+  date: string;
+  open: number;
+  high: number;
+  low: number;
+  close: number;
+}
 
 const UP = "#e02d2d";
 const DOWN = "#19a974";
@@ -38,10 +47,14 @@ const MA_CONFIG = [
 export function CandleChart({ candles }: { candles: Candle[] }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const chartRef = useRef<IChartApi | null>(null);
+  const [legend, setLegend] = useState<Legend | null>(null);
 
   useEffect(() => {
     const container = containerRef.current;
     if (!container) return;
+
+    const dateByTime = new Map<number, string>();
+    for (const c of candles) dateByTime.set(toTime(c.date), c.date);
 
     const chart = createChart(container, {
       layout: {
@@ -107,20 +120,72 @@ export function CandleChart({ candles }: { candles: Candle[] }) {
 
     chart.timeScale().fitContent();
 
+    // Default the legend to the most recent bar.
+    const last = candles[candles.length - 1];
+    if (last) {
+      setLegend({
+        date: last.date,
+        open: last.open,
+        high: last.high,
+        low: last.low,
+        close: last.close,
+      });
+    }
+
+    // Update the legend to whichever bar the crosshair is over.
+    chart.subscribeCrosshairMove((param) => {
+      const bar = param.seriesData.get(candleSeries) as
+        | { open: number; high: number; low: number; close: number }
+        | undefined;
+      if (!bar || param.time == null) {
+        if (last) {
+          setLegend({
+            date: last.date,
+            open: last.open,
+            high: last.high,
+            low: last.low,
+            close: last.close,
+          });
+        }
+        return;
+      }
+      setLegend({
+        date: dateByTime.get(param.time as number) ?? "",
+        open: bar.open,
+        high: bar.high,
+        low: bar.low,
+        close: bar.close,
+      });
+    });
+
     return () => {
       chart.remove();
       chartRef.current = null;
     };
   }, [candles]);
 
+  const ohlcColor =
+    legend && legend.close >= legend.open ? "text-up" : "text-down";
+
   return (
     <div className="relative">
-      <div className="mb-2 flex gap-4 text-xs">
-        {MA_CONFIG.map((ma) => (
-          <span key={ma.period} style={{ color: ma.color }}>
-            MA{ma.period}
-          </span>
-        ))}
+      <div className="mb-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs">
+        {legend && (
+          <div className={`flex gap-3 font-medium ${ohlcColor}`}>
+            <span className="text-neutral-400">{legend.date}</span>
+            <span>開 {fmtNum(legend.open)}</span>
+            <span>高 {fmtNum(legend.high)}</span>
+            <span>低 {fmtNum(legend.low)}</span>
+            <span>收 {fmtNum(legend.close)}</span>
+          </div>
+        )}
+        <div className="flex gap-3">
+          {MA_CONFIG.map((ma) => (
+            <span key={ma.period} style={{ color: ma.color }}>
+              MA{ma.period}
+            </span>
+          ))}
+        </div>
       </div>
       <div ref={containerRef} className="h-[420px] w-full" />
     </div>
