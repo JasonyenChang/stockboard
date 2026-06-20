@@ -1,12 +1,12 @@
 {
   "version": "1.0.0",
-  "lastScanned": 1781796469210,
+  "lastScanned": 1781967893896,
   "projectRoot": "/Users/jasonyen/Coding/SideProject/StockBoard",
   "techStack": {
     "languages": [
       {
         "name": "JavaScript/TypeScript",
-        "version": null,
+        "version": "22.x",
         "confidence": "high",
         "markers": [
           "package.json"
@@ -39,7 +39,7 @@
       }
     ],
     "packageManager": "npm",
-    "runtime": null
+    "runtime": "Node.js 22.x"
   },
   "build": {
     "buildCommand": "npm run build",
@@ -49,7 +49,8 @@
     "scripts": {
       "dev": "next dev",
       "build": "next build",
-      "start": "next start"
+      "start": "next start",
+      "deploy": "npx vercel --prod"
     }
   },
   "conventions": {
@@ -74,7 +75,7 @@
       "path": "app",
       "purpose": "Application code",
       "fileCount": 3,
-      "lastAccessed": 1781796468916,
+      "lastAccessed": 1781967893512,
       "keyFiles": [
         "globals.css",
         "layout.tsx",
@@ -84,21 +85,21 @@
     "components": {
       "path": "components",
       "purpose": "UI components",
-      "fileCount": 7,
-      "lastAccessed": 1781796469197,
+      "fileCount": 9,
+      "lastAccessed": 1781967893513,
       "keyFiles": [
         "CandleChart.tsx",
         "ChipsPanel.tsx",
+        "DividendsPanel.tsx",
         "FinancialsPanel.tsx",
-        "Panel.tsx",
-        "PriceSection.tsx"
+        "Panel.tsx"
       ]
     },
     "lib": {
       "path": "lib",
       "purpose": "Library code",
       "fileCount": 5,
-      "lastAccessed": 1781796469198,
+      "lastAccessed": 1781967893886,
       "keyFiles": [
         "fetcher.ts",
         "finmind.ts",
@@ -111,111 +112,15 @@
       "path": "app/api",
       "purpose": "API routes",
       "fileCount": 0,
-      "lastAccessed": 1781796469199,
+      "lastAccessed": 1781967893888,
       "keyFiles": []
     }
   },
   "hotPaths": [
     {
-      "path": "lib/types.ts",
-      "accessCount": 12,
-      "lastAccessed": 1781881448712,
-      "type": "file"
-    },
-    {
-      "path": "components/ChipsPanel.tsx",
-      "accessCount": 11,
-      "lastAccessed": 1781881532044,
-      "type": "file"
-    },
-    {
       "path": "app/api/chips/route.ts",
-      "accessCount": 10,
-      "lastAccessed": 1781881489096,
-      "type": "file"
-    },
-    {
-      "path": "CLAUDE.md",
-      "accessCount": 8,
-      "lastAccessed": 1781880794502,
-      "type": "file"
-    },
-    {
-      "path": "app/stock/[id]/page.tsx",
-      "accessCount": 6,
-      "lastAccessed": 1781880771783,
-      "type": "file"
-    },
-    {
-      "path": "components/CandleChart.tsx",
-      "accessCount": 5,
-      "lastAccessed": 1781883029636,
-      "type": "file"
-    },
-    {
-      "path": "components/DividendsPanel.tsx",
-      "accessCount": 4,
-      "lastAccessed": 1781799665202,
-      "type": "file"
-    },
-    {
-      "path": "components/QuoteHeader.tsx",
-      "accessCount": 4,
-      "lastAccessed": 1781800275494,
-      "type": "file"
-    },
-    {
-      "path": "app/page.tsx",
-      "accessCount": 4,
-      "lastAccessed": 1781878482741,
-      "type": "file"
-    },
-    {
-      "path": "components/StockCard.tsx",
-      "accessCount": 4,
-      "lastAccessed": 1781878559088,
-      "type": "file"
-    },
-    {
-      "path": "components/FinancialsPanel.tsx",
-      "accessCount": 3,
-      "lastAccessed": 1781797388971,
-      "type": "file"
-    },
-    {
-      "path": "app/api/dividends/route.ts",
-      "accessCount": 3,
-      "lastAccessed": 1781799639640,
-      "type": "file"
-    },
-    {
-      "path": "app/api/news/route.ts",
-      "accessCount": 3,
-      "lastAccessed": 1781880467428,
-      "type": "file"
-    },
-    {
-      "path": "app/api/financials/route.ts",
-      "accessCount": 2,
-      "lastAccessed": 1781797351798,
-      "type": "file"
-    },
-    {
-      "path": "tailwind.config.ts",
-      "accessCount": 2,
-      "lastAccessed": 1781797591421,
-      "type": "file"
-    },
-    {
-      "path": "package.json",
-      "accessCount": 2,
-      "lastAccessed": 1781800398202,
-      "type": "file"
-    },
-    {
-      "path": "components/NewsPanel.tsx",
-      "accessCount": 2,
-      "lastAccessed": 1781880213272,
+      "accessCount": 1,
+      "lastAccessed": 1781968110102,
       "type": "file"
     }
   ],

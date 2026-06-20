@@ -91,9 +91,13 @@ export async function GET(req: NextRequest) {
       point[bucket] += (r.buy ?? 0) - (r.sell ?? 0);
       byDate.set(r.date, point);
     }
-    const institutions: InstitutionPoint[] = Array.from(byDate.values()).sort(
-      (a, b) => a.date.localeCompare(b.date)
-    );
+    // FinMind sometimes returns institutional rows on non-trading days (e.g.
+    // national holidays). Real trading days are those with actual price volume,
+    // so drop institutional dates with no positive volume — unless the price
+    // fetch failed entirely, in which case keep everything as a fallback.
+    const institutions: InstitutionPoint[] = Array.from(byDate.values())
+      .filter((p) => rawPrice.length === 0 || (volumeByDate.get(p.date) ?? 0) > 0)
+      .sort((a, b) => a.date.localeCompare(b.date));
 
     const margin: MarginPoint[] = rawMargin
       .map((r) => ({
