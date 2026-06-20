@@ -141,7 +141,8 @@ function ChipsContent({
               <th className="py-1.5 pr-3 text-right font-normal">外資</th>
               <th className="py-1.5 pr-3 text-right font-normal">投信</th>
               <th className="py-1.5 pr-3 text-right font-normal">自營商</th>
-              <th className="py-1.5 pl-3 text-right font-normal">成交張</th>
+              <th className="py-1.5 pr-3 text-right font-normal">成交張</th>
+              <th className="py-1.5 pl-3 text-right font-normal">當沖%</th>
             </tr>
           </thead>
           <tbody>
@@ -157,8 +158,13 @@ function ChipsContent({
                 <td className={`py-1.5 pr-3 text-right ${signClass(p.dealer)}`}>
                   {fmtLots(p.dealer)}
                 </td>
-                <td className="py-1.5 pl-3 text-right text-neutral-300">
+                <td className="py-1.5 pr-3 text-right text-neutral-300">
                   {Number.isNaN(p.volume) ? "—" : fmtInt(p.volume / 1000)}
+                </td>
+                <td className="py-1.5 pl-3 text-right text-neutral-300">
+                  {Number.isNaN(p.dayTradeRatio)
+                    ? "—"
+                    : `${fmtNum(p.dayTradeRatio, 1)}%`}
                 </td>
               </tr>
             ))}

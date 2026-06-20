@@ -119,8 +119,56 @@
   "hotPaths": [
     {
       "path": "app/api/chips/route.ts",
+      "accessCount": 7,
+      "lastAccessed": 1781968976405,
+      "type": "file"
+    },
+    {
+      "path": "app/stock/[id]/page.tsx",
+      "accessCount": 5,
+      "lastAccessed": 1781969522149,
+      "type": "file"
+    },
+    {
+      "path": "components/ChipsPanel.tsx",
+      "accessCount": 2,
+      "lastAccessed": 1781968994012,
+      "type": "file"
+    },
+    {
+      "path": "lib/types.ts",
+      "accessCount": 2,
+      "lastAccessed": 1781969466132,
+      "type": "file"
+    },
+    {
+      "path": "app/api/revenue/route.ts",
       "accessCount": 1,
-      "lastAccessed": 1781968110102,
+      "lastAccessed": 1781969011279,
+      "type": "file"
+    },
+    {
+      "path": "components/MonthRevenuePanel.tsx",
+      "accessCount": 1,
+      "lastAccessed": 1781969028594,
+      "type": "file"
+    },
+    {
+      "path": "CLAUDE.md",
+      "accessCount": 1,
+      "lastAccessed": 1781969062569,
+      "type": "file"
+    },
+    {
+      "path": "app/api/valuation/route.ts",
+      "accessCount": 1,
+      "lastAccessed": 1781969481497,
+      "type": "file"
+    },
+    {
+      "path": "components/ValuationPanel.tsx",
+      "accessCount": 1,
+      "lastAccessed": 1781969502258,
       "type": "file"
     }
   ],

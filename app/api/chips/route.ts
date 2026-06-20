@@ -28,6 +28,11 @@ interface RawPrice {
   Trading_Volume: number;
 }
 
+interface RawDayTrading {
+  date: string;
+  Volume: number; // 當沖成交股數
+}
+
 // FinMind investor "name" values mapped to our three buckets.
 function bucketOf(name: string): "foreign" | "trust" | "dealer" | null {
   if (name.startsWith("Foreign")) return "foreign";
@@ -43,7 +48,8 @@ export async function GET(req: NextRequest) {
 
   try {
     const start = daysAgo(Number.isFinite(days) ? days : 120);
-    const [rawInst, rawMargin, rawShare, rawPrice] = await Promise.all([
+    const [rawInst, rawMargin, rawShare, rawPrice, rawDayTrade] =
+      await Promise.all([
       finmindFetch<RawInst>({
         dataset: "TaiwanStockInstitutionalInvestorsBuySell",
         data_id: id,
@@ -68,17 +74,29 @@ export async function GET(req: NextRequest) {
         start_date: start,
         end_date: today(),
       }).catch(() => [] as RawPrice[]),
+      finmindFetch<RawDayTrading>({
+        dataset: "TaiwanStockDayTrading",
+        data_id: id,
+        start_date: start,
+        end_date: today(),
+      }).catch(() => [] as RawDayTrading[]),
     ]);
 
     // Daily total trading volume (shares) keyed by date.
     const volumeByDate = new Map<string, number>();
     for (const r of rawPrice) volumeByDate.set(r.date, r.Trading_Volume);
 
+    // Daily day-trading volume (shares) keyed by date.
+    const dayTradeByDate = new Map<string, number>();
+    for (const r of rawDayTrade) dayTradeByDate.set(r.date, r.Volume);
+
     // Aggregate institutional net buy (shares) per date.
     const byDate = new Map<string, InstitutionPoint>();
     for (const r of rawInst) {
       const bucket = bucketOf(r.name);
       if (!bucket) continue;
+      const vol = volumeByDate.get(r.date) ?? NaN;
+      const dtVol = dayTradeByDate.get(r.date);
       const point =
         byDate.get(r.date) ??
         {
@@ -86,7 +104,9 @@ export async function GET(req: NextRequest) {
           foreign: 0,
           trust: 0,
           dealer: 0,
-          volume: volumeByDate.get(r.date) ?? NaN,
+          volume: vol,
+          dayTradeRatio:
+            vol > 0 && dtVol != null ? (dtVol / vol) * 100 : NaN,
         };
       point[bucket] += (r.buy ?? 0) - (r.sell ?? 0);
       byDate.set(r.date, point);

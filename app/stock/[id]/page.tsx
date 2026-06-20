@@ -3,9 +3,11 @@
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { PriceSection } from "@/components/PriceSection";
+import { ValuationPanel } from "@/components/ValuationPanel";
 import { ChipsPanel } from "@/components/ChipsPanel";
 import { FinancialsPanel } from "@/components/FinancialsPanel";
 import { DividendsPanel } from "@/components/DividendsPanel";
+import { MonthRevenuePanel } from "@/components/MonthRevenuePanel";
 
 export default function StockPage() {
   const params = useParams();
@@ -24,12 +26,17 @@ export default function StockPage() {
 
       <PriceSection stockId={stockId} />
 
+      <div className="mt-4">
+        <ValuationPanel stockId={stockId} />
+      </div>
+
       <div className="mt-4 grid grid-cols-1 gap-4 lg:grid-cols-2">
         <ChipsPanel stockId={stockId} />
         <FinancialsPanel stockId={stockId} />
       </div>
 
-      <div className="mt-4">
+      <div className="mt-4 grid grid-cols-1 gap-4 lg:grid-cols-2">
+        <MonthRevenuePanel stockId={stockId} />
         <DividendsPanel stockId={stockId} />
       </div>
 

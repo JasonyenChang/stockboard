@@ -37,6 +37,28 @@ export interface InstitutionPoint {
   trust: number; // 投信
   dealer: number; // 自營商 (合計)
   volume: number; // 當日總成交量 (股數); NaN if unavailable
+  dayTradeRatio: number; // 當沖比例 (%); NaN if unavailable
+}
+
+// PE-band valuation (本益比河流圖): cheap/fair/expensive prices derived from
+// the historical PER distribution times trailing EPS.
+export interface Valuation {
+  eps: number; // 近四季 EPS (推估, = price / PER)
+  cheap: number; // 便宜價
+  fair: number; // 合理價
+  expensive: number; // 昂貴價
+  price: number; // 現價 (收盤)
+  per: number; // 現價本益比
+  label: "便宜" | "合理" | "昂貴";
+  years: number; // PE band 取樣年數
+}
+
+// Monthly revenue with year-over-year growth.
+export interface RevenuePoint {
+  year: number;
+  month: number;
+  revenue: number; // 當月營收 (元)
+  yoy: number | null; // 年增率 (%) vs same month last year
 }
 
 // Margin trading (融資融券) balances.
