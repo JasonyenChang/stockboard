@@ -130,6 +130,12 @@
       "type": "file"
     },
     {
+      "path": "app/api/realtime/route.ts",
+      "accessCount": 3,
+      "lastAccessed": 1782101176444,
+      "type": "file"
+    },
+    {
       "path": "components/StockCard.tsx",
       "accessCount": 2,
       "lastAccessed": 1782100139105,
@@ -139,12 +145,6 @@
       "path": "lib/types.ts",
       "accessCount": 1,
       "lastAccessed": 1782099159698,
-      "type": "file"
-    },
-    {
-      "path": "app/api/realtime/route.ts",
-      "accessCount": 1,
-      "lastAccessed": 1782099193664,
       "type": "file"
     },
     {

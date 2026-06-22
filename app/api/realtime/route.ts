@@ -56,13 +56,13 @@ export async function GET(req: NextRequest) {
     if (!s) return NextResponse.json({ quote: null });
 
     const prevClose = num(s.y);
-    // Latest price: last trade, else best bid, else best ask, else prev close.
-    let price = num(s.z);
-    if (Number.isNaN(price)) price = firstOf(s.b);
-    if (Number.isNaN(price)) price = firstOf(s.a);
-    if (Number.isNaN(price)) price = prevClose;
+    // Latest price: last trade, else best bid, else best ask. MIS returns
+    // "0.0000" (parsed to 0) when there's no trade/quote this tick, so only
+    // accept strictly-positive values. If none, return null so the UI falls
+    // back to the EOD daily quote instead of showing a bogus 0 / -100%.
+    const price = [num(s.z), firstOf(s.b), firstOf(s.a)].find((v) => v > 0);
 
-    if (Number.isNaN(price) || Number.isNaN(prevClose)) {
+    if (price == null || !(prevClose > 0)) {
       return NextResponse.json({ quote: null });
     }
 
