@@ -47,10 +47,14 @@ export function QuoteHeader({
   meta,
   quote,
   stockId,
+  isLive = false,
+  quoteTime,
 }: {
   meta: StockMeta | null;
   quote: Quote;
   stockId: string;
+  isLive?: boolean;
+  quoteTime?: string;
 }) {
   const arrow = quote.change > 0 ? "▲" : quote.change < 0 ? "▼" : "";
   return (
@@ -80,7 +84,14 @@ export function QuoteHeader({
             </span>
           </div>
           <div className="mt-1 text-xs text-neutral-400">
-            收盤日 {quote.date}
+            {isLive ? (
+              <span className="inline-flex items-center gap-1.5">
+                <span className="h-2 w-2 animate-pulse rounded-full bg-emerald-500" />
+                即時 {quoteTime}（{quote.date}）
+              </span>
+            ) : (
+              <>收盤 {quote.date}</>
+            )}
           </div>
           <ExternalLinks stockId={stockId} />
         </div>

@@ -40,6 +40,20 @@ export interface InstitutionPoint {
   dayTradeRatio: number; // 當沖比例 (%); NaN if unavailable
 }
 
+// Intraday real-time quote from the TWSE MIS endpoint.
+export interface RealtimeQuote {
+  price: number; // 最新成交價 (or best bid/ask fallback)
+  prevClose: number; // 昨收
+  change: number;
+  changePct: number;
+  open: number;
+  high: number;
+  low: number;
+  volume: number; // 累積成交量 (股數)
+  time: string; // "HH:mm:ss"
+  date: string; // "YYYY-MM-DD"
+}
+
 // PE-band valuation (本益比河流圖): cheap/fair/expensive prices derived from
 // the historical PER distribution times trailing EPS.
 export interface Valuation {

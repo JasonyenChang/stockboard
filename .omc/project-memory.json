@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "lastScanned": 1781967893896,
+  "lastScanned": 1782098894808,
   "projectRoot": "/Users/jasonyen/Coding/SideProject/StockBoard",
   "techStack": {
     "languages": [
@@ -75,7 +75,7 @@
       "path": "app",
       "purpose": "Application code",
       "fileCount": 3,
-      "lastAccessed": 1781967893512,
+      "lastAccessed": 1782098894300,
       "keyFiles": [
         "globals.css",
         "layout.tsx",
@@ -85,21 +85,21 @@
     "components": {
       "path": "components",
       "purpose": "UI components",
-      "fileCount": 9,
-      "lastAccessed": 1781967893513,
+      "fileCount": 11,
+      "lastAccessed": 1782098894301,
       "keyFiles": [
         "CandleChart.tsx",
         "ChipsPanel.tsx",
         "DividendsPanel.tsx",
         "FinancialsPanel.tsx",
-        "Panel.tsx"
+        "MonthRevenuePanel.tsx"
       ]
     },
     "lib": {
       "path": "lib",
       "purpose": "Library code",
       "fileCount": 5,
-      "lastAccessed": 1781967893886,
+      "lastAccessed": 1782098894801,
       "keyFiles": [
         "fetcher.ts",
         "finmind.ts",
@@ -112,63 +112,51 @@
       "path": "app/api",
       "purpose": "API routes",
       "fileCount": 0,
-      "lastAccessed": 1781967893888,
+      "lastAccessed": 1782098894803,
       "keyFiles": []
     }
   },
   "hotPaths": [
     {
-      "path": "app/api/chips/route.ts",
-      "accessCount": 7,
-      "lastAccessed": 1781968976405,
+      "path": "components/QuoteHeader.tsx",
+      "accessCount": 4,
+      "lastAccessed": 1782099284937,
       "type": "file"
     },
     {
-      "path": "app/stock/[id]/page.tsx",
-      "accessCount": 5,
-      "lastAccessed": 1781969522149,
+      "path": "components/PriceSection.tsx",
+      "accessCount": 4,
+      "lastAccessed": 1782100102699,
       "type": "file"
     },
     {
-      "path": "components/ChipsPanel.tsx",
+      "path": "components/StockCard.tsx",
       "accessCount": 2,
-      "lastAccessed": 1781968994012,
+      "lastAccessed": 1782100139105,
       "type": "file"
     },
     {
       "path": "lib/types.ts",
-      "accessCount": 2,
-      "lastAccessed": 1781969466132,
+      "accessCount": 1,
+      "lastAccessed": 1782099159698,
       "type": "file"
     },
     {
-      "path": "app/api/revenue/route.ts",
+      "path": "app/api/realtime/route.ts",
       "accessCount": 1,
-      "lastAccessed": 1781969011279,
-      "type": "file"
-    },
-    {
-      "path": "components/MonthRevenuePanel.tsx",
-      "accessCount": 1,
-      "lastAccessed": 1781969028594,
+      "lastAccessed": 1782099193664,
       "type": "file"
     },
     {
       "path": "CLAUDE.md",
       "accessCount": 1,
-      "lastAccessed": 1781969062569,
+      "lastAccessed": 1782099456635,
       "type": "file"
     },
     {
-      "path": "app/api/valuation/route.ts",
+      "path": "lib/market.ts",
       "accessCount": 1,
-      "lastAccessed": 1781969481497,
-      "type": "file"
-    },
-    {
-      "path": "components/ValuationPanel.tsx",
-      "accessCount": 1,
-      "lastAccessed": 1781969502258,
+      "lastAccessed": 1782100085744,
       "type": "file"
     }
   ],
