@@ -127,22 +127,17 @@ export async function GET(req: NextRequest) {
       }))
       .sort((a, b) => a.date.localeCompare(b.date));
 
-    // Latest foreign-investor shareholding snapshot.
-    const latestShare = rawShare
-      .slice()
-      .sort((a, b) => a.date.localeCompare(b.date))
-      .at(-1);
-    const foreignHolding: ForeignHolding | null = latestShare
-      ? {
-          date: latestShare.date,
-          shares: latestShare.ForeignInvestmentShares,
-          issuedShares: latestShare.NumberOfSharesIssued,
-          ratio: latestShare.ForeignInvestmentSharesRatio,
-          remainRatio: latestShare.ForeignInvestmentRemainRatio,
-        }
-      : null;
+    // Foreign-investor shareholding — latest 5 days, newest first.
+    const foreignHoldings: ForeignHolding[] = rawShare
+      .map((r) => ({
+        date: r.date,
+        shares: r.ForeignInvestmentShares,
+        ratio: r.ForeignInvestmentSharesRatio,
+      }))
+      .sort((a, b) => b.date.localeCompare(a.date))
+      .slice(0, 5);
 
-    return NextResponse.json({ institutions, margin, foreignHolding });
+    return NextResponse.json({ institutions, margin, foreignHoldings });
   } catch (err) {
     const status = err instanceof FinMindError ? err.status : 500;
     const message = err instanceof Error ? err.message : "讀取籌碼失敗";

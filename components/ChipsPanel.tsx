@@ -9,7 +9,7 @@ import { Panel, Spinner, ErrorBox } from "./Panel";
 interface ChipsData {
   institutions: InstitutionPoint[];
   margin: MarginPoint[];
-  foreignHolding: ForeignHolding | null;
+  foreignHoldings: ForeignHolding[];
 }
 
 export function ChipsPanel({ stockId }: { stockId: string }) {
@@ -26,7 +26,7 @@ export function ChipsPanel({ stockId }: { stockId: string }) {
         <ChipsContent
           institutions={data.institutions}
           margin={data.margin}
-          foreignHolding={data.foreignHolding}
+          foreignHoldings={data.foreignHoldings}
         />
       )}
     </Panel>
@@ -36,11 +36,11 @@ export function ChipsPanel({ stockId }: { stockId: string }) {
 function ChipsContent({
   institutions,
   margin,
-  foreignHolding,
+  foreignHoldings,
 }: {
   institutions: InstitutionPoint[];
   margin: MarginPoint[];
-  foreignHolding: ForeignHolding | null;
+  foreignHoldings: ForeignHolding[];
 }) {
   const recent = institutions.slice(-20).reverse();
 
@@ -62,39 +62,35 @@ function ChipsContent({
 
   return (
     <div className="space-y-5">
-      {foreignHolding && (
+      {foreignHoldings.length > 0 && (
         <div className="rounded-lg border border-panelborder bg-neutral-900/40 p-3">
-          <div className="mb-2 flex items-baseline justify-between">
-            <span className="text-xs text-neutral-400">
-              外資持股 ({foreignHolding.date})
-            </span>
-            <span className="text-xs text-neutral-500">
-              佔發行股數 {fmtInt(foreignHolding.issuedShares / 1000)} 張
-            </span>
+          <div className="mb-1 text-xs text-neutral-400">
+            外資持股（近 5 日）
+            {/* Only 外資 has holding/ratio data from FinMind; 投信/自營商
+                total holdings aren't available, so they're omitted. */}
           </div>
-          <div className="flex items-end gap-6">
-            <div>
-              <div className="text-xs text-neutral-400">持股張數</div>
-              <div className="text-lg font-semibold text-neutral-100">
-                {fmtInt(foreignHolding.shares / 1000)}
-              </div>
-            </div>
-            <div>
-              <div className="text-xs text-neutral-400">持股比例</div>
-              <div className="text-lg font-semibold text-neutral-100">
-                {fmtNum(foreignHolding.ratio)}%
-              </div>
-            </div>
-          </div>
-          {/* visual bar of foreign-held proportion */}
-          <div className="mt-3 h-2 w-full overflow-hidden rounded bg-neutral-800">
-            <div
-              className="h-full rounded bg-blue-500"
-              style={{
-                width: `${Math.min(100, Math.max(0, foreignHolding.ratio))}%`,
-              }}
-            />
-          </div>
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="text-xs text-neutral-400">
+                <th className="py-1 text-left font-normal">日期</th>
+                <th className="py-1 text-right font-normal">持有張數</th>
+                <th className="py-1 text-right font-normal">持股比率</th>
+              </tr>
+            </thead>
+            <tbody>
+              {foreignHoldings.map((h) => (
+                <tr key={h.date} className="border-t border-panelborder/60">
+                  <td className="py-1.5 text-neutral-400">{h.date}</td>
+                  <td className="py-1.5 text-right font-mono text-neutral-200">
+                    {fmtInt(h.shares / 1000)}
+                  </td>
+                  <td className="py-1.5 text-right font-mono text-neutral-200">
+                    {fmtNum(h.ratio)}%
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       )}
 

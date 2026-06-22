@@ -83,13 +83,11 @@ export interface MarginPoint {
   shortBalance: number; // 融券餘額 (張)
 }
 
-// Foreign-investor shareholding snapshot (外資持股).
+// Foreign-investor shareholding for one day (外資持股).
 export interface ForeignHolding {
   date: string;
   shares: number; // 外資持有股數
-  issuedShares: number; // 發行股數
-  ratio: number; // 外資持股比例 (%)
-  remainRatio: number; // 尚可投資比例 (%)
+  ratio: number; // 外資持股比率 (%)
 }
 
 export interface FinancialPoint {
