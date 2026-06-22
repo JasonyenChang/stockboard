@@ -44,6 +44,7 @@ export function StockCard({
 
   const arrow = !has ? "" : change! > 0 ? "▲" : change! < 0 ? "▼" : "";
   const color = has ? signClass(change!) : "text-neutral-300";
+  const limit = rt?.limit ?? null;
 
   return (
     <div className="group relative">
@@ -86,7 +87,15 @@ export function StockCard({
           )}
           {has && (
             <>
-              <span className={`text-4xl font-bold tabular-nums ${color}`}>
+              <span
+                className={`rounded text-4xl font-bold tabular-nums ${color} ${
+                  limit === "up"
+                    ? "bg-up/20 px-2"
+                    : limit === "down"
+                      ? "bg-down/20 px-2"
+                      : ""
+                }`}
+              >
                 {fmtNum(price!)}
               </span>
               <span
@@ -96,6 +105,15 @@ export function StockCard({
                   {arrow} {fmtNum(Math.abs(change!))}
                 </span>
                 <span>{fmtNum(Math.abs(changePct!))}%</span>
+                {limit && (
+                  <span
+                    className={`rounded px-1.5 text-xs font-bold text-white ${
+                      limit === "up" ? "bg-up" : "bg-down"
+                    }`}
+                  >
+                    {limit === "up" ? "漲停" : "跌停"}
+                  </span>
+                )}
               </span>
             </>
           )}

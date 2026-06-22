@@ -52,6 +52,7 @@ export interface RealtimeQuote {
   volume: number; // 累積成交量 (股數)
   time: string; // "HH:mm:ss"
   date: string; // "YYYY-MM-DD"
+  limit: "up" | "down" | null; // 漲停 / 跌停 / 無
 }
 
 // PE-band valuation (本益比河流圖): cheap/fair/expensive prices derived from

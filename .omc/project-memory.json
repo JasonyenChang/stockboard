@@ -118,33 +118,33 @@
   },
   "hotPaths": [
     {
+      "path": "app/api/realtime/route.ts",
+      "accessCount": 11,
+      "lastAccessed": 1782105542671,
+      "type": "file"
+    },
+    {
       "path": "components/PriceSection.tsx",
-      "accessCount": 7,
-      "lastAccessed": 1782100587171,
+      "accessCount": 8,
+      "lastAccessed": 1782105556370,
       "type": "file"
     },
     {
       "path": "components/QuoteHeader.tsx",
-      "accessCount": 4,
-      "lastAccessed": 1782099284937,
-      "type": "file"
-    },
-    {
-      "path": "app/api/realtime/route.ts",
-      "accessCount": 3,
-      "lastAccessed": 1782101176444,
+      "accessCount": 7,
+      "lastAccessed": 1782105587154,
       "type": "file"
     },
     {
       "path": "components/StockCard.tsx",
-      "accessCount": 2,
-      "lastAccessed": 1782100139105,
+      "accessCount": 4,
+      "lastAccessed": 1782105608515,
       "type": "file"
     },
     {
       "path": "lib/types.ts",
-      "accessCount": 1,
-      "lastAccessed": 1782099159698,
+      "accessCount": 2,
+      "lastAccessed": 1782105496555,
       "type": "file"
     },
     {

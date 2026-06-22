@@ -49,12 +49,14 @@ export function QuoteHeader({
   stockId,
   isLive = false,
   quoteTime,
+  limit = null,
 }: {
   meta: StockMeta | null;
   quote: Quote;
   stockId: string;
   isLive?: boolean;
   quoteTime?: string;
+  limit?: "up" | "down" | null;
 }) {
   const arrow = quote.change > 0 ? "▲" : quote.change < 0 ? "▼" : "";
   return (
@@ -75,13 +77,30 @@ export function QuoteHeader({
             )}
           </div>
           <div className="mt-2 flex items-baseline gap-3">
-            <span className={`text-3xl font-bold ${signClass(quote.change)}`}>
+            <span
+              className={`rounded text-3xl font-bold ${signClass(quote.change)} ${
+                limit === "up"
+                  ? "bg-up/20 px-2"
+                  : limit === "down"
+                    ? "bg-down/20 px-2"
+                    : ""
+              }`}
+            >
               {fmtNum(quote.close)}
             </span>
             <span className={`text-lg font-medium ${signClass(quote.change)}`}>
               {arrow} {fmtNum(Math.abs(quote.change))} (
               {fmtNum(Math.abs(quote.changePct))}%)
             </span>
+            {limit && (
+              <span
+                className={`rounded px-2 py-0.5 text-sm font-bold text-white ${
+                  limit === "up" ? "bg-up" : "bg-down"
+                }`}
+              >
+                {limit === "up" ? "漲停" : "跌停"}
+              </span>
+            )}
           </div>
           <div className="mt-1 text-xs text-neutral-400">
             {isLive ? (

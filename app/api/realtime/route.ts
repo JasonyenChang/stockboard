@@ -17,6 +17,8 @@ interface MisStock {
   d: string; // 日期 YYYYMMDD
   a?: string; // 賣出五檔, "_"-separated
   b?: string; // 買進五檔, "_"-separated
+  u?: string; // 漲停價
+  w?: string; // 跌停價
 }
 
 function num(s: string | undefined): number {
@@ -25,9 +27,16 @@ function num(s: string | undefined): number {
   return Number.isFinite(n) ? n : NaN;
 }
 
-function firstOf(list: string | undefined): number {
+// First strictly-positive value in an underscore-separated 5-level quote
+// string. MIS pads empty slots with "0.0000" (e.g. a limit-up lock leaves the
+// top bid slot at 0 while real bids sit below), so skip non-positive entries.
+function firstPositive(list: string | undefined): number {
   if (!list) return NaN;
-  return num(list.split("_")[0]);
+  for (const part of list.split("_")) {
+    const n = num(part);
+    if (n > 0) return n;
+  }
+  return NaN;
 }
 
 export async function GET(req: NextRequest) {
@@ -60,7 +69,9 @@ export async function GET(req: NextRequest) {
     // "0.0000" (parsed to 0) when there's no trade/quote this tick, so only
     // accept strictly-positive values. If none, return null so the UI falls
     // back to the EOD daily quote instead of showing a bogus 0 / -100%.
-    const price = [num(s.z), firstOf(s.b), firstOf(s.a)].find((v) => v > 0);
+    const price = [num(s.z), firstPositive(s.b), firstPositive(s.a)].find(
+      (v) => v > 0
+    );
 
     if (price == null || !(prevClose > 0)) {
       return NextResponse.json({ quote: null });
@@ -70,6 +81,16 @@ export async function GET(req: NextRequest) {
     const d = s.d ?? "";
     const date =
       d.length === 8 ? `${d.slice(0, 4)}-${d.slice(4, 6)}-${d.slice(6, 8)}` : d;
+
+    // 漲停 / 跌停: current price reaches the daily limit price (u / w).
+    const limitUp = num(s.u);
+    const limitDown = num(s.w);
+    const limit: RealtimeQuote["limit"] =
+      limitUp > 0 && price >= limitUp
+        ? "up"
+        : limitDown > 0 && price <= limitDown
+          ? "down"
+          : null;
 
     const quote: RealtimeQuote = {
       price,
@@ -82,6 +103,7 @@ export async function GET(req: NextRequest) {
       volume: num(s.v) * 1000, // 張 → 股數 (match daily Quote convention)
       time: s.t ?? "",
       date,
+      limit,
     };
 
     return NextResponse.json({ quote });
