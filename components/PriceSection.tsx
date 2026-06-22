@@ -88,7 +88,7 @@ export function PriceSection({ stockId }: { stockId: string }) {
           stockId={stockId}
           isLive={isLive}
           quoteTime={rt?.time}
-          limit={isLive ? rt?.limit ?? null : null}
+          limit={rt?.limit ?? null}
         />
       )}
       <Panel

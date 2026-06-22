@@ -78,12 +78,12 @@ export function QuoteHeader({
           </div>
           <div className="mt-2 flex items-baseline gap-3">
             <span
-              className={`rounded text-3xl font-bold ${signClass(quote.change)} ${
+              className={`rounded text-3xl font-bold ${
                 limit === "up"
-                  ? "bg-up/20 px-2"
+                  ? "bg-up px-2 text-white"
                   : limit === "down"
-                    ? "bg-down/20 px-2"
-                    : ""
+                    ? "bg-down px-2 text-white"
+                    : signClass(quote.change)
               }`}
             >
               {fmtNum(quote.close)}
@@ -92,15 +92,6 @@ export function QuoteHeader({
               {arrow} {fmtNum(Math.abs(quote.change))} (
               {fmtNum(Math.abs(quote.changePct))}%)
             </span>
-            {limit && (
-              <span
-                className={`rounded px-2 py-0.5 text-sm font-bold text-white ${
-                  limit === "up" ? "bg-up" : "bg-down"
-                }`}
-              >
-                {limit === "up" ? "漲停" : "跌停"}
-              </span>
-            )}
           </div>
           <div className="mt-1 text-xs text-neutral-400">
             {isLive ? (

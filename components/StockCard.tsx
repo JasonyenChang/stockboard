@@ -88,12 +88,12 @@ export function StockCard({
           {has && (
             <>
               <span
-                className={`rounded text-4xl font-bold tabular-nums ${color} ${
+                className={`rounded text-4xl font-bold tabular-nums ${
                   limit === "up"
-                    ? "bg-up/20 px-2"
+                    ? "bg-up px-2 text-white"
                     : limit === "down"
-                      ? "bg-down/20 px-2"
-                      : ""
+                      ? "bg-down px-2 text-white"
+                      : color
                 }`}
               >
                 {fmtNum(price!)}
@@ -105,15 +105,6 @@ export function StockCard({
                   {arrow} {fmtNum(Math.abs(change!))}
                 </span>
                 <span>{fmtNum(Math.abs(changePct!))}%</span>
-                {limit && (
-                  <span
-                    className={`rounded px-1.5 text-xs font-bold text-white ${
-                      limit === "up" ? "bg-up" : "bg-down"
-                    }`}
-                  >
-                    {limit === "up" ? "漲停" : "跌停"}
-                  </span>
-                )}
               </span>
             </>
           )}
