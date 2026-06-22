@@ -5,6 +5,7 @@ import {
   createChart,
   ColorType,
   type IChartApi,
+  type ISeriesApi,
   type UTCTimestamp,
 } from "lightweight-charts";
 import type { Candle } from "@/lib/types";
@@ -20,6 +21,8 @@ interface Legend {
 
 const UP = "#e02d2d";
 const DOWN = "#19a974";
+const VOL_UP = "#e02d2d55";
+const VOL_DOWN = "#19a97455";
 
 function toTime(date: string): UTCTimestamp {
   return (Date.parse(date) / 1000) as UTCTimestamp;
@@ -44,11 +47,26 @@ const MA_CONFIG = [
   { period: 60, color: "#bd10e0" },
 ];
 
-export function CandleChart({ candles }: { candles: Candle[] }) {
+export function CandleChart({
+  candles,
+  liveCandle,
+}: {
+  candles: Candle[];
+  liveCandle?: Candle | null;
+}) {
   const containerRef = useRef<HTMLDivElement>(null);
   const chartRef = useRef<IChartApi | null>(null);
+  const candleSeriesRef = useRef<ISeriesApi<"Candlestick"> | null>(null);
+  const volSeriesRef = useRef<ISeriesApi<"Histogram"> | null>(null);
+  const maSeriesRef = useRef<
+    { period: number; series: ISeriesApi<"Line"> }[]
+  >([]);
+  const histRef = useRef<Candle[]>([]);
+  const latestRef = useRef<Candle | null>(null);
   const [legend, setLegend] = useState<Legend | null>(null);
 
+  // Build the chart from the historical (EOD) candles. Rebuilds only when the
+  // candle set changes (stock / range switch), not on every live tick.
   useEffect(() => {
     const container = containerRef.current;
     if (!container) return;
@@ -90,7 +108,9 @@ export function CandleChart({ candles }: { candles: Candle[] }) {
         close: c.close,
       }))
     );
+    candleSeriesRef.current = candleSeries;
 
+    maSeriesRef.current = [];
     for (const ma of MA_CONFIG) {
       const line = chart.addLineSeries({
         color: ma.color,
@@ -100,6 +120,7 @@ export function CandleChart({ candles }: { candles: Candle[] }) {
         crosshairMarkerVisible: false,
       });
       line.setData(movingAverage(candles, ma.period));
+      maSeriesRef.current.push({ period: ma.period, series: line });
     }
 
     const volumeSeries = chart.addHistogramSeries({
@@ -113,15 +134,14 @@ export function CandleChart({ candles }: { candles: Candle[] }) {
       candles.map((c, i) => ({
         time: toTime(c.date),
         value: c.volume,
-        color:
-          i > 0 && c.close >= candles[i - 1].close ? "#e02d2d55" : "#19a97455",
+        color: i > 0 && c.close >= candles[i - 1].close ? VOL_UP : VOL_DOWN,
       }))
     );
+    volSeriesRef.current = volumeSeries;
 
-    chart.timeScale().fitContent();
-
-    // Default the legend to the most recent bar.
+    histRef.current = candles;
     const last = candles[candles.length - 1];
+    latestRef.current = last ?? null;
     if (last) {
       setLegend({
         date: last.date,
@@ -132,21 +152,24 @@ export function CandleChart({ candles }: { candles: Candle[] }) {
       });
     }
 
-    // Update the legend to whichever bar the crosshair is over.
+    chart.timeScale().fitContent();
+
+    // Update the legend to whichever bar the crosshair is over; fall back to
+    // the latest bar (which may be the live one) when not hovering.
     chart.subscribeCrosshairMove((param) => {
       const bar = param.seriesData.get(candleSeries) as
         | { open: number; high: number; low: number; close: number }
         | undefined;
       if (!bar || param.time == null) {
-        if (last) {
+        const l = latestRef.current;
+        if (l)
           setLegend({
-            date: last.date,
-            open: last.open,
-            high: last.high,
-            low: last.low,
-            close: last.close,
+            date: l.date,
+            open: l.open,
+            high: l.high,
+            low: l.low,
+            close: l.close,
           });
-        }
         return;
       }
       setLegend({
@@ -161,8 +184,56 @@ export function CandleChart({ candles }: { candles: Candle[] }) {
     return () => {
       chart.remove();
       chartRef.current = null;
+      candleSeriesRef.current = null;
+      volSeriesRef.current = null;
+      maSeriesRef.current = [];
     };
   }, [candles]);
+
+  // Incrementally update just the latest (today's) bar on each live tick,
+  // without rebuilding the chart — preserves the user's zoom/pan.
+  useEffect(() => {
+    const cs = candleSeriesRef.current;
+    const vs = volSeriesRef.current;
+    if (!cs || !vs || !liveCandle) return;
+
+    const t = toTime(liveCandle.date);
+    cs.update({
+      time: t,
+      open: liveCandle.open,
+      high: liveCandle.high,
+      low: liveCandle.low,
+      close: liveCandle.close,
+    });
+
+    const hist = histRef.current;
+    const prevClose = hist.length ? hist[hist.length - 1].close : liveCandle.open;
+    vs.update({
+      time: t,
+      value: liveCandle.volume,
+      color: liveCandle.close >= prevClose ? VOL_UP : VOL_DOWN,
+    });
+
+    const combined = [...hist, liveCandle];
+    for (const { period, series } of maSeriesRef.current) {
+      if (combined.length >= period) {
+        let sum = 0;
+        for (let i = combined.length - period; i < combined.length; i++) {
+          sum += combined[i].close;
+        }
+        series.update({ time: t, value: sum / period });
+      }
+    }
+
+    latestRef.current = liveCandle;
+    setLegend({
+      date: liveCandle.date,
+      open: liveCandle.open,
+      high: liveCandle.high,
+      low: liveCandle.low,
+      close: liveCandle.close,
+    });
+  }, [liveCandle]);
 
   const ohlcColor =
     legend && legend.close >= legend.open ? "text-up" : "text-down";

@@ -63,6 +63,21 @@ export function PriceSection({ stockId }: { stockId: string }) {
         }
       : data?.quote;
 
+  // Today's forming candle, built from the real-time quote — appended to the
+  // chart only while the EOD data doesn't yet include today.
+  const lastCandleDate = data?.candles[data.candles.length - 1]?.date;
+  const liveCandle: Candle | null =
+    data && rt && rt.date === todayStr() && lastCandleDate !== rt.date
+      ? {
+          date: rt.date,
+          open: pick(rt.open, rt.price),
+          high: pick(rt.high, rt.price),
+          low: pick(rt.low, rt.price),
+          close: rt.price,
+          volume: pick(rt.volume, 0),
+        }
+      : null;
+
   return (
     <div className="space-y-4">
       {error && <ErrorBox message={(error as Error).message} />}
@@ -97,7 +112,7 @@ export function PriceSection({ stockId }: { stockId: string }) {
       >
         {isLoading && !data && <Spinner label="載入 K 線…" />}
         {data && data.candles.length > 0 ? (
-          <CandleChart candles={data.candles} />
+          <CandleChart candles={data.candles} liveCandle={liveCandle} />
         ) : (
           !isLoading && <p className="text-sm text-neutral-400">無價格資料。</p>
         )}
