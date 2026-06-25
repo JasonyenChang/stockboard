@@ -29,9 +29,10 @@ export function MarketIndexChart() {
   const isLive = !!rt && marketOpen() && rt.date === todayStr();
 
   const lastCandle = candles[candles.length - 1];
-  const lastCandleDate = lastCandle?.date;
+  // Always drive today's bar from MIS (Yahoo's same-day bar can lag);
+  // CandleChart.update() replaces today's bar if Yahoo already included it.
   const liveCandle: Candle | null =
-    rt && rt.date === todayStr() && lastCandleDate !== rt.date
+    rt && rt.date === todayStr()
       ? {
           date: rt.date,
           open: pick(rt.open, rt.price),
