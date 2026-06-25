@@ -50,9 +50,13 @@ const MA_CONFIG = [
 export function CandleChart({
   candles,
   liveCandle,
+  showVolume = true,
+  heightClass = "h-[420px]",
 }: {
   candles: Candle[];
   liveCandle?: Candle | null;
+  showVolume?: boolean;
+  heightClass?: string;
 }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const chartRef = useRef<IChartApi | null>(null);
@@ -123,21 +127,23 @@ export function CandleChart({
       maSeriesRef.current.push({ period: ma.period, series: line });
     }
 
-    const volumeSeries = chart.addHistogramSeries({
-      priceFormat: { type: "volume" },
-      priceScaleId: "vol",
-    });
-    chart.priceScale("vol").applyOptions({
-      scaleMargins: { top: 0.8, bottom: 0 },
-    });
-    volumeSeries.setData(
-      candles.map((c, i) => ({
-        time: toTime(c.date),
-        value: c.volume,
-        color: i > 0 && c.close >= candles[i - 1].close ? VOL_UP : VOL_DOWN,
-      }))
-    );
-    volSeriesRef.current = volumeSeries;
+    if (showVolume) {
+      const volumeSeries = chart.addHistogramSeries({
+        priceFormat: { type: "volume" },
+        priceScaleId: "vol",
+      });
+      chart.priceScale("vol").applyOptions({
+        scaleMargins: { top: 0.8, bottom: 0 },
+      });
+      volumeSeries.setData(
+        candles.map((c, i) => ({
+          time: toTime(c.date),
+          value: c.volume,
+          color: i > 0 && c.close >= candles[i - 1].close ? VOL_UP : VOL_DOWN,
+        }))
+      );
+      volSeriesRef.current = volumeSeries;
+    }
 
     histRef.current = candles;
     const last = candles[candles.length - 1];
@@ -194,8 +200,7 @@ export function CandleChart({
   // without rebuilding the chart — preserves the user's zoom/pan.
   useEffect(() => {
     const cs = candleSeriesRef.current;
-    const vs = volSeriesRef.current;
-    if (!cs || !vs || !liveCandle) return;
+    if (!cs || !liveCandle) return;
 
     const t = toTime(liveCandle.date);
     cs.update({
@@ -208,11 +213,14 @@ export function CandleChart({
 
     const hist = histRef.current;
     const prevClose = hist.length ? hist[hist.length - 1].close : liveCandle.open;
-    vs.update({
-      time: t,
-      value: liveCandle.volume,
-      color: liveCandle.close >= prevClose ? VOL_UP : VOL_DOWN,
-    });
+    const vs = volSeriesRef.current;
+    if (vs) {
+      vs.update({
+        time: t,
+        value: liveCandle.volume,
+        color: liveCandle.close >= prevClose ? VOL_UP : VOL_DOWN,
+      });
+    }
 
     const combined = [...hist, liveCandle];
     for (const { period, series } of maSeriesRef.current) {
@@ -258,7 +266,7 @@ export function CandleChart({
           ))}
         </div>
       </div>
-      <div ref={containerRef} className="h-[420px] w-full" />
+      <div ref={containerRef} className={`${heightClass} w-full`} />
     </div>
   );
 }

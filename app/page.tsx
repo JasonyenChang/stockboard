@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { SearchBar } from "@/components/SearchBar";
 import { StockCard } from "@/components/StockCard";
+import { MarketIndexChart } from "@/components/MarketIndexChart";
 
 const STORAGE_KEY = "stockboard:watchlist";
 const DEFAULTS = ["2330", "2317", "2454", "2308"];
@@ -47,6 +48,10 @@ export default function Home() {
           搜尋股票加入自選，點擊卡片查看 K 線、籌碼、財報與股利
         </p>
       </header>
+
+      <div className="mb-6">
+        <MarketIndexChart />
+      </div>
 
       {loaded && ids.length === 0 ? (
         <div className="mt-16 text-center text-sm text-neutral-500">
