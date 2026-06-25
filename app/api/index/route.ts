@@ -1,68 +1,59 @@
 import { NextResponse } from "next/server";
 import type { Candle } from "@/lib/types";
 
-// TAIEX (發行量加權股價指數) daily OHLC from the TWSE open data endpoint.
-// Returns one month per request, so we fetch the last several months. The
-// index has no per-day volume, so volume is 0. Caveat: like MIS, TWSE may
-// block datacenter IPs (watch on Vercel).
-const TWSE_URL = "https://www.twse.com.tw/rwd/zh/TAIEX/MI_5MINS_HIST";
+// TAIEX (發行量加權股價指數) daily OHLC. We use Yahoo Finance's chart API for
+// ^TWII because it works reliably from datacenter IPs (TWSE's own open-data
+// endpoint blocks them, which broke the chart on Vercel). The index has no
+// meaningful per-bar volume here, so volume is 0.
+const YAHOO_URL =
+  "https://query1.finance.yahoo.com/v8/finance/chart/%5ETWII?range=1y&interval=1d";
 
-interface TwseResp {
-  stat: string;
-  data?: string[][]; // [民國日期, 開, 高, 低, 收] with comma separators
-}
-
-function rocToISO(s: string): string {
-  const [y, m, d] = s.split("/");
-  return `${Number(y) + 1911}-${m.padStart(2, "0")}-${d.padStart(2, "0")}`;
-}
-
-function n(s: string): number {
-  return Number(String(s).replace(/,/g, ""));
+interface YahooChart {
+  chart: {
+    result?: {
+      timestamp?: number[];
+      meta?: { gmtoffset?: number };
+      indicators: {
+        quote: {
+          open: (number | null)[];
+          high: (number | null)[];
+          low: (number | null)[];
+          close: (number | null)[];
+        }[];
+      };
+    }[];
+    error?: unknown;
+  };
 }
 
 export async function GET() {
   try {
-    const now = new Date();
-    const months: string[] = [];
-    for (let i = 0; i < 6; i++) {
-      const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
-      months.push(
-        `${d.getFullYear()}${String(d.getMonth() + 1).padStart(2, "0")}01`
-      );
+    const res = await fetch(YAHOO_URL, {
+      headers: { "User-Agent": "Mozilla/5.0" },
+      next: { revalidate: 60 * 60 }, // 1h
+    });
+    if (!res.ok) {
+      return NextResponse.json({ candles: [] });
     }
 
-    const results = await Promise.all(
-      months.map((ym) =>
-        fetch(`${TWSE_URL}?date=${ym}&response=json`, {
-          headers: { "User-Agent": "Mozilla/5.0" },
-          next: { revalidate: 60 * 60 }, // 1h
-        })
-          .then((r) => (r.ok ? (r.json() as Promise<TwseResp>) : null))
-          .catch(() => null)
-      )
-    );
+    const json = (await res.json()) as YahooChart;
+    const r = json.chart.result?.[0];
+    const ts = r?.timestamp;
+    const q = r?.indicators?.quote?.[0];
+    if (!r || !ts || !q) return NextResponse.json({ candles: [] });
 
-    const byDate = new Map<string, Candle>();
-    for (const res of results) {
-      if (!res || res.stat !== "OK" || !res.data) continue;
-      for (const row of res.data) {
-        const [date, open, high, low, close] = row;
-        const iso = rocToISO(date);
-        byDate.set(iso, {
-          date: iso,
-          open: n(open),
-          high: n(high),
-          low: n(low),
-          close: n(close),
-          volume: 0,
-        });
-      }
+    const offset = r.meta?.gmtoffset ?? 8 * 3600; // TW is UTC+8
+
+    const candles: Candle[] = [];
+    for (let i = 0; i < ts.length; i++) {
+      const open = q.open[i];
+      const high = q.high[i];
+      const low = q.low[i];
+      const close = q.close[i];
+      if (open == null || high == null || low == null || close == null) continue;
+      const date = new Date((ts[i] + offset) * 1000).toISOString().slice(0, 10);
+      candles.push({ date, open, high, low, close, volume: 0 });
     }
-
-    const candles = Array.from(byDate.values()).sort((a, b) =>
-      a.date.localeCompare(b.date)
-    );
 
     return NextResponse.json({ candles });
   } catch (err) {
